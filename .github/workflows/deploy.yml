@@ -23,8 +23,8 @@ jobs:
             # 1. 最新コードの取得
             git pull origin main
 
-            # 2. 依存関係のインストール（グローバル化した composer を呼ぶ）
-            composer install --no-dev --optimize-autoloader
+            # 2. PHP 8.4 のフルパスでグローバル Composer を実行
+            /opt/alt/php84/usr/bin/php ~/.local/bin/composer install --no-dev --optimize-autoloader
 
             # 3. DB マイグレーション
             /opt/alt/php84/usr/bin/php artisan migrate --force
