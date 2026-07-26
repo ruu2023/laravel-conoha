@@ -23,8 +23,8 @@ jobs:
             # 1. 最新コードの取得
             git pull origin main
 
-            # 2. 依存関係のインストール（Composerグローバル化済みの場合は composer でOK）
-            /opt/alt/php84/usr/bin/php composer.phar install --no-dev --optimize-autoloader
+            # 2. 依存関係のインストール
+            /opt/alt/php84/usr/bin/php ~/.local/bin/composer install --no-dev --optimize-autoloader
 
             # 3. DB マイグレーション
             /opt/alt/php84/usr/bin/php artisan migrate --force
