@@ -1,8 +1,6 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
+AddHandler application/x-lsphp84 .php
 
+<IfModule mod_rewrite.c>
     RewriteEngine On
 
     # Handle Authorization Header
