@@ -12,8 +12,11 @@
         <meta name="robots" content="index, follow">
         <meta name="google-site-verification" content="CmL0cYObXLPrUATx_ToU_m4CmOPgTX1rgsKvnIe7aAs" />
         <link rel="canonical" href="{{ $seoUrl }}">
-        <link rel="icon" href="{{ asset('favicon.ico') }}">
-        <meta name="theme-color" content="#eef1ec">
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+        <meta name="theme-color" content="#b8262c">
 
         <meta property="og:type" content="website">
         <meta property="og:locale" content="ja_JP">

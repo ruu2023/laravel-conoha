@@ -33,3 +33,16 @@ jobs:
             /opt/alt/php84/usr/bin/php artisan config:cache
             /opt/alt/php84/usr/bin/php artisan route:cache
             /opt/alt/php84/usr/bin/php artisan view:cache
+
+            # 5. 公開ディレクトリのシンボリックリンクを同期
+            #    public/ 直下に新しい静的ファイルが増えても自動でリンクを張る
+            cd ~/public_html/laravel.ruu-dev.com
+            shopt -s dotglob
+            for f in ~/laravel-conoha/public/*; do
+              name=$(basename "$f")
+              if [ -f "$f" ]; then
+                ln -sfn "$f" "$name"
+              fi
+            done
+            shopt -u dotglob
+            ln -sfn ~/laravel-conoha/public/build build
