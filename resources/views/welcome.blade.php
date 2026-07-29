@@ -3,6 +3,16 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KH6L17GQP1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KH6L17GQP1');
+        </script>
+
         <title>Universal Draft App | 文字数制限つき自動保存メモ</title>
         @php
             $seoDescription = '文字数制限を自由に設定できる、ブラウザ自動保存メモアプリ。X・Instagram・小論文・レポート・原稿用紙などのプリセットに対応し、文字数超過を自動でアラート。';
