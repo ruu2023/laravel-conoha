@@ -13,7 +13,7 @@
             gtag('config', 'G-KH6L17GQP1');
         </script>
 
-        <title>Universal Draft App | 文字数制限つき自動保存メモ</title>
+        <title>文字数カウント自動保存メモ | X・小論文・原稿用紙対応 - Universal Draft App</title>
         @php
             $seoDescription = '文字数制限を自由に設定できる、ブラウザ自動保存メモアプリ。X・Instagram・小論文・レポート・原稿用紙などのプリセットに対応し、文字数超過を自動でアラート。';
             $seoUrl = url('/');
@@ -31,12 +31,12 @@
         <meta property="og:type" content="website">
         <meta property="og:locale" content="ja_JP">
         <meta property="og:site_name" content="Universal Draft App">
-        <meta property="og:title" content="Universal Draft App | 文字数制限つき自動保存メモ">
+        <meta property="og:title" content="文字数カウント自動保存メモ | X・小論文・原稿用紙対応 - Universal Draft App">
         <meta property="og:description" content="{{ $seoDescription }}">
         <meta property="og:url" content="{{ $seoUrl }}">
 
         <meta name="twitter:card" content="summary">
-        <meta name="twitter:title" content="Universal Draft App | 文字数制限つき自動保存メモ">
+        <meta name="twitter:title" content="文字数カウント自動保存メモ | X・小論文・原稿用紙対応 - Universal Draft App">
         <meta name="twitter:description" content="{{ $seoDescription }}">
 
         <script type="application/ld+json">
