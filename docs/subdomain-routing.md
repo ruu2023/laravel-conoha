@@ -70,16 +70,28 @@ Laravelの `url` コンテナバインディングをこのクラスに差し替
 
 ## 特定アプリを非公開にする(キルスイッチ)
 
-`routes/apps/{name}.php` を削除・リネームせずに、そのサブドメインだけを404にできる。
+`routes/apps/{name}.php` を削除・リネームせずに、そのサブドメインだけを404にできる。方法は2通りで、`ResolveAppSubdomain::apps()`がどちらも合わせて差し引く。
+
+### 通常の方法: `config/apps.php`(gitで管理・push不要でSSHもしない)
+
+[config/apps.php](../config/apps.php)の`disabled`配列にサブドメイン名を追加して、普段どおりコミット・pushするだけ。
+
+```php
+'disabled' => ['post'],
+```
+
+既存のデプロイフロー(GitHub Actions → ConoHa WING)がそのまま`config:cache`し直してくれるので、SSHは不要。
+
+### 緊急用: `.env`の`DISABLED_APPS`(SSHのみ、デプロイを待てない時用)
 
 ```
-DISABLED_APPS=post   # .env に設定
+DISABLED_APPS=post   # .env に設定(カンマ区切りで複数可)
 php artisan config:cache
 ```
 
-- 複数指定は `DISABLED_APPS=post,dockerfiles` のようにカンマ区切り
-- `ResolveAppSubdomain::apps()` が `config('app.disabled_apps')` を差し引いた一覧を返すため、`routes/web.php`のループ・ヘッダーのホワイトリストチェックの両方に同時に反映される(他アプリには影響しない)
-- ファイル自体は残るので、`.env`を戻して`config:cache`し直すだけで復活できる。**SSH経由でこの2手順を行うだけで、gitへのコミットやデプロイ不要**で切り替えられる
+pushや通常デプロイを待たずに即座に切り替えたい場合のみ使う。復旧は`.env`の行を消して`config:cache`し直す。
+
+どちらの方法も、ファイル自体は残るので後で戻すのは簡単。他アプリには一切影響しない。
 
 ## 新しいミニアプリの追加方法
 

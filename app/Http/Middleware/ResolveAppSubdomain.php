@@ -50,17 +50,25 @@ class ResolveAppSubdomain
      * const means the whitelist can never list an app whose route file
      * doesn't exist, which is what broke every subdomain last time.
      *
-     * config('app.disabled_apps') (env DISABLED_APPS) is subtracted from
-     * this list so a mini app can be taken offline — cleanly 404ing,
-     * without affecting any other app — via an env change + config:cache,
-     * without deleting its route file or redeploying.
+     * config('apps.disabled') (version-controlled — commit & push to
+     * toggle) and config('app.disabled_apps') (env DISABLED_APPS, an
+     * SSH-only emergency toggle for when a deploy can't wait) are both
+     * subtracted from this list, so a mini app can be taken offline —
+     * cleanly 404ing, without affecting any other app — without deleting
+     * its route file.
      */
     public static function apps(): array
     {
-        static $apps;
-
-        return $apps ??= collect(glob(base_path("routes/apps/*.php")))
+        // Deliberately not cached in a static var: PHP-FPM workers are
+        // reused across many requests (only the Laravel Application is
+        // rebuilt per request, not the PHP process), so a static cache
+        // here would keep serving a stale list — e.g. config/apps.php's
+        // disabled entries wouldn't take effect until that worker happened
+        // to recycle. glob() over a handful of files is cheap enough that
+        // recomputing this every call isn't worth that risk.
+        return collect(glob(base_path("routes/apps/*.php")))
             ->map(fn($path) => pathinfo($path, PATHINFO_FILENAME))
+            ->diff(config("apps.disabled", []))
             ->diff(config("app.disabled_apps", []))
             ->sort()
             ->values()
