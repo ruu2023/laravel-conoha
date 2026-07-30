@@ -1,3 +1,23 @@
+# laravel-conoha
+
+`*.ruu-dev.com` 配下の複数のミニアプリ(`memo`、`dockerfiles`、`post` など)を、1つのLaravelアプリ・1つのConoHa WINGオリジンでサブドメインごとに振り分けて配信するプロジェクト。
+
+## アプリ構成
+
+- 各ミニアプリのルートは `routes/apps/{subdomain}.php` に置く(例: `routes/apps/post.php`)
+- どのサブドメインへのリクエストかは `App\Http\Middleware\ResolveAppSubdomain` が判定し、内部的にリクエストパスへ `/{subdomain}` prefixを付けてルーティングする(ブラウザ側のURLにこのprefixは出てこない)
+- ルートの一覧(ホワイトリスト)は手動管理ではなく、`routes/apps/*.php` の実ファイルから自動検出される(`ResolveAppSubdomain::apps()`)
+
+設計の背景・過去にハマった点(なぜ起動時の条件分岐ではなくミドルウェアで振り分けるのか、`route()`が生成するURLの扱いなど)は [docs/subdomain-routing.md](docs/subdomain-routing.md) を参照。
+
+### 新しいミニアプリの追加方法
+
+1. `routes/apps/{subdomain}.php` を作成し、通常どおりルートを書く
+2. コントローラー・ビュー等を追加する
+3. コミット・push する(これだけでよい。ホワイトリストの手動追記は不要)
+
+## Laravelについて
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
