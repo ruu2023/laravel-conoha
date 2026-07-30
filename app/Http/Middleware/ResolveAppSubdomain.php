@@ -16,8 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
  * name (see routes/web.php), so this middleware rewrites the incoming
  * request's path to add that prefix before routing happens — the prefix
  * never leaks to the browser, since the client only ever sees the
- * unprefixed path. Resolving via a request header rather than a
- * conditionally-loaded route file (the first version of this) matters
+ * unprefixed path. The reverse direction (route()/action() output) is
+ * handled separately by App\Routing\SubdomainAwareUrlGenerator. Resolving
+ * via a request header rather than a conditionally-loaded route file
+ * (the first version of this) matters
  * because route registration happens once per Application boot, and only
  * traditional per-request PHP processes (PHP-FPM, `artisan serve`) rebuild
  * the Application per request — tests and Octane reuse it, so a header read
@@ -28,26 +30,26 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ResolveAppSubdomain
 {
-    private const HEADER = 'X-App-Subdomain';
+    private const HEADER = "X-App-Subdomain";
 
     /**
      * Whitelist of subdomains this app is allowed to serve. Anything else
      * (including a spoofed header value) resolves to null and 404s, since
      * routes/web.php only loads a route file for a whitelisted key.
      */
-    public const APPS = ['laravel', 'memo', 'dockerfiles'];
+    public const APPS = ["laravel", "memo", "dockerfiles", "post"];
 
     /**
      * Used when the header is absent entirely (e.g. a direct request that
      * didn't go through the Worker) so laravel.ruu-dev.com keeps working.
      */
-    public const DEFAULT_APP = 'laravel';
+    public const DEFAULT_APP = "laravel";
 
     public static function resolve(Request $request): ?string
     {
         $header = $request->header(self::HEADER);
 
-        if ($header !== null && $header !== '') {
+        if ($header !== null && $header !== "") {
             return in_array($header, self::APPS, true) ? $header : null;
         }
 
@@ -56,7 +58,14 @@ class ResolveAppSubdomain
         // no /etc/hosts edit, and this never applies outside `local` — in
         // production the Host is always rewritten to laravel.ruu-dev.com by
         // the Worker, so a spoofed Host header here can't do anything.
-        if (app()->environment('local') && preg_match("/^([a-z0-9-]+)\.localhost$/i", $request->getHost(), $matches)) {
+        if (
+            app()->environment("local") &&
+            preg_match(
+                "/^([a-z0-9-]+)\.localhost$/i",
+                $request->getHost(),
+                $matches,
+            )
+        ) {
             return in_array($matches[1], self::APPS, true) ? $matches[1] : null;
         }
 
@@ -70,7 +79,7 @@ class ResolveAppSubdomain
         abort_if($subdomain === null, 404);
 
         $prefixed = Request::create(
-            '/'.$subdomain.$request->getRequestUri(),
+            "/" . $subdomain . $request->getRequestUri(),
             $request->getMethod(),
             $request->query->all(),
             $request->cookies->all(),
@@ -79,7 +88,7 @@ class ResolveAppSubdomain
             $request->getContent(),
         );
         $prefixed->headers->replace($request->headers->all());
-        $prefixed->attributes->set('app_subdomain', $subdomain);
+        $prefixed->attributes->set("app_subdomain", $subdomain);
 
         return $next($prefixed);
     }

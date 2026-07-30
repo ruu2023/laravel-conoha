@@ -9,5 +9,5 @@ use Illuminate\Support\Facades\Route;
 // static routes at boot (route:cache-safe) instead of branching on the
 // header here, since boot only runs once per Application, not per request.
 foreach (ResolveAppSubdomain::APPS as $app) {
-    Route::prefix($app)->group(__DIR__."/apps/{$app}.php");
+    Route::prefix($app)->group(__DIR__ . "/apps/{$app}.php");
 }
