@@ -68,6 +68,19 @@ Laravelの `url` コンテナバインディングをこのクラスに差し替
 - `routes/web.php` のループも、ヘッダーのホワイトリストチェックも、**同じ `apps()` の結果を参照する**ようにしたので、「一覧には書いたが実体がない」という食い違いはそもそも起こり得ない
 - ファイルが存在しないサブドメインは、単にそのサブドメインだけが404になる(他のアプリは無関係に動き続ける)
 
+## 特定アプリを非公開にする(キルスイッチ)
+
+`routes/apps/{name}.php` を削除・リネームせずに、そのサブドメインだけを404にできる。
+
+```
+DISABLED_APPS=post   # .env に設定
+php artisan config:cache
+```
+
+- 複数指定は `DISABLED_APPS=post,dockerfiles` のようにカンマ区切り
+- `ResolveAppSubdomain::apps()` が `config('app.disabled_apps')` を差し引いた一覧を返すため、`routes/web.php`のループ・ヘッダーのホワイトリストチェックの両方に同時に反映される(他アプリには影響しない)
+- ファイル自体は残るので、`.env`を戻して`config:cache`し直すだけで復活できる。**SSH経由でこの2手順を行うだけで、gitへのコミットやデプロイ不要**で切り替えられる
+
 ## 新しいミニアプリの追加方法
 
 1. `routes/apps/{subdomain}.php` を作成し、通常どおり `Route::get('/', ...)` 等を書く(このファイル内のパスは、そのアプリのprefixからの相対パスでよい。`Route::prefix()`は`routes/web.php`側で自動的に付与される)

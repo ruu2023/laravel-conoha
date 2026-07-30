@@ -49,6 +49,11 @@ class ResolveAppSubdomain
      * single source of truth (the filesystem) instead of a hand-maintained
      * const means the whitelist can never list an app whose route file
      * doesn't exist, which is what broke every subdomain last time.
+     *
+     * config('app.disabled_apps') (env DISABLED_APPS) is subtracted from
+     * this list so a mini app can be taken offline — cleanly 404ing,
+     * without affecting any other app — via an env change + config:cache,
+     * without deleting its route file or redeploying.
      */
     public static function apps(): array
     {
@@ -56,6 +61,7 @@ class ResolveAppSubdomain
 
         return $apps ??= collect(glob(base_path("routes/apps/*.php")))
             ->map(fn($path) => pathinfo($path, PATHINFO_FILENAME))
+            ->diff(config("app.disabled_apps", []))
             ->sort()
             ->values()
             ->all();

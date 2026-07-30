@@ -107,6 +107,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Disabled mini apps
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated subdomain names to take offline without removing their
+    | routes/apps/{name}.php file (see App\Http\Middleware\ResolveAppSubdomain
+    | and docs/subdomain-routing.md). Listed here rather than deleted so the
+    | app can be brought back with an env change + `config:cache` alone, no
+    | redeploy needed.
+    |
+    */
+
+    'disabled_apps' => array_filter(
+        explode(',', (string) env('DISABLED_APPS', ''))
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
