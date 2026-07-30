@@ -25,19 +25,15 @@ use Symfony\Component\HttpFoundation\Response;
  * the Application per request — tests and Octane reuse it, so a header read
  * at boot time would silently freeze at whatever request built the app.
  *
- * To publish a new mini app: add its subdomain to APPS below and create a
- * matching routes/apps/{subdomain}.php file.
+ * To publish a new mini app: create routes/apps/{subdomain}.php — that's
+ * the only step. apps() below discovers it automatically, so there is no
+ * separate whitelist to keep in sync (a whitelist entry with no matching
+ * file previously crashed *every* subdomain's boot, since routes/web.php
+ * required a file that didn't exist).
  */
 class ResolveAppSubdomain
 {
     private const HEADER = "X-App-Subdomain";
-
-    /**
-     * Whitelist of subdomains this app is allowed to serve. Anything else
-     * (including a spoofed header value) resolves to null and 404s, since
-     * routes/web.php only loads a route file for a whitelisted key.
-     */
-    public const APPS = ["laravel", "memo", "dockerfiles", "post"];
 
     /**
      * Used when the header is absent entirely (e.g. a direct request that
@@ -45,12 +41,32 @@ class ResolveAppSubdomain
      */
     public const DEFAULT_APP = "laravel";
 
+    /**
+     * Whitelist of subdomains this app is allowed to serve, derived from
+     * the routes/apps/*.php files actually present — the same list
+     * routes/web.php loops over to register routes. Anything else
+     * (including a spoofed header value) resolves to null and 404s. A
+     * single source of truth (the filesystem) instead of a hand-maintained
+     * const means the whitelist can never list an app whose route file
+     * doesn't exist, which is what broke every subdomain last time.
+     */
+    public static function apps(): array
+    {
+        static $apps;
+
+        return $apps ??= collect(glob(base_path("routes/apps/*.php")))
+            ->map(fn($path) => pathinfo($path, PATHINFO_FILENAME))
+            ->sort()
+            ->values()
+            ->all();
+    }
+
     public static function resolve(Request $request): ?string
     {
         $header = $request->header(self::HEADER);
 
         if ($header !== null && $header !== "") {
-            return in_array($header, self::APPS, true) ? $header : null;
+            return in_array($header, self::apps(), true) ? $header : null;
         }
 
         // Local convenience: visit e.g. http://memo.localhost directly instead
@@ -66,7 +82,7 @@ class ResolveAppSubdomain
                 $matches,
             )
         ) {
-            return in_array($matches[1], self::APPS, true) ? $matches[1] : null;
+            return in_array($matches[1], self::apps(), true) ? $matches[1] : null;
         }
 
         return self::DEFAULT_APP;
