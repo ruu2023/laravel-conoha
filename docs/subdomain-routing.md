@@ -53,6 +53,8 @@ route('posts.show', 1) → "/post/1"          ← prefix付きのまま
 
 Laravelの `url` コンテナバインディングをこのクラスに差し替えている([app/Providers/AppServiceProvider.php](../app/Providers/AppServiceProvider.php))。`route()` / `action()` の戻り値から、現在のリクエストが属するアプリのprefix部分を剥がしてから返す。これによりビュー・コントローラーはprefixの存在を一切意識せず、普段どおり `route()` を呼べる。
 
+さらに、`route($name, $params, true)`(絶対URL)にはもう1つ落とし穴がある。CloudflareがオリジナルへのHostを常に`laravel.ruu-dev.com`に書き換えて転送するため、絶対URLのドメイン部分も本来は`post.ruu-dev.com`であるべきところ、素の`$request->getHost()`を使うと常に`laravel.ruu-dev.com`になってしまう。`SubdomainAwareUrlGenerator`は、Hostが「Workerによる書き換え後の値(`laravel.`で始まる)」だと判定できる場合だけ、解決済みの`app_subdomain`でドメイン部分を差し替える。ローカルの`*.localhost`はWorkerを経由せずHostが最初から正しいので、この処理は素通り(no-op)になる。
+
 ## ハマった点2: 「アプリの一覧」が2箇所に分裂して食い違った
 
 以前は `ResolveAppSubdomain::APPS` という手動維持の配列(ホワイトリスト)を、`routes/web.php` のループと、ヘッダーの正当性チェックの両方で参照していた。
