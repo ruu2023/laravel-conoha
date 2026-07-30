@@ -12,6 +12,17 @@ use Symfony\Component\HttpFoundation\Response;
  * (the Worker rewrites Host to laravel.ruu-dev.com and forwards the originally
  * requested subdomain in this header instead).
  *
+ * Each app's routes are registered at boot under a URI prefix matching its
+ * name (see routes/web.php), so this middleware rewrites the incoming
+ * request's path to add that prefix before routing happens — the prefix
+ * never leaks to the browser, since the client only ever sees the
+ * unprefixed path. Resolving via a request header rather than a
+ * conditionally-loaded route file (the first version of this) matters
+ * because route registration happens once per Application boot, and only
+ * traditional per-request PHP processes (PHP-FPM, `artisan serve`) rebuild
+ * the Application per request — tests and Octane reuse it, so a header read
+ * at boot time would silently freeze at whatever request built the app.
+ *
  * To publish a new mini app: add its subdomain to APPS below and create a
  * matching routes/apps/{subdomain}.php file.
  */
@@ -54,8 +65,22 @@ class ResolveAppSubdomain
 
     public function handle(Request $request, Closure $next): Response
     {
-        $request->attributes->set('app_subdomain', self::resolve($request));
+        $subdomain = self::resolve($request);
 
-        return $next($request);
+        abort_if($subdomain === null, 404);
+
+        $prefixed = Request::create(
+            '/'.$subdomain.$request->getRequestUri(),
+            $request->getMethod(),
+            $request->query->all(),
+            $request->cookies->all(),
+            $request->files->all(),
+            $request->server->all(),
+            $request->getContent(),
+        );
+        $prefixed->headers->replace($request->headers->all());
+        $prefixed->attributes->set('app_subdomain', $subdomain);
+
+        return $next($prefixed);
     }
 }

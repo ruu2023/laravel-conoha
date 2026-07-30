@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://laravel.ruu-dev.com/sitemap.xml
+Sitemap: https://memo.ruu-dev.com/sitemap.xml

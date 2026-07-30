@@ -30,11 +30,10 @@ jobs:
             /opt/alt/php84/usr/bin/php artisan migrate --force
 
             # 4. キャッシュ再構築
-            #    ルーティングは X-App-Subdomain ヘッダー（リクエスト時にしか
-            #    わからない）で分岐するため route:cache は使えない。古いキャッシュが
-            #    残っていると route:cache 時点のサブドメインで固定されてしまうので明示的に破棄する。
+            #    サブドメイン毎のルートは起動時に静的登録され、実際の振り分けは
+            #    ミドルウェアがリクエスト毎にパスを書き換えて行うので route:cache で問題ない。
             /opt/alt/php84/usr/bin/php artisan config:cache
-            /opt/alt/php84/usr/bin/php artisan route:clear
+            /opt/alt/php84/usr/bin/php artisan route:cache
             /opt/alt/php84/usr/bin/php artisan view:cache
 
             # 5. 公開ディレクトリのシンボリックリンクを同期

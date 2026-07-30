@@ -16,7 +16,9 @@
         <title>文字数カウント自動保存メモ | X・小論文・原稿用紙対応 - Universal Draft App</title>
         @php
             $seoDescription = '文字数制限を自由に設定できる、ブラウザ自動保存メモアプリ。X・Instagram・小論文・レポート・原稿用紙などのプリセットに対応し、文字数超過を自動でアラート。';
-            $seoUrl = url('/');
+            // Host is always laravel.ruu-dev.com server-side (the Worker rewrites
+            // it), so url('/') can't reflect the real canonical domain — hardcode it.
+            $seoUrl = 'https://memo.ruu-dev.com/';
         @endphp
         <meta name="description" content="{{ $seoDescription }}">
         <meta name="robots" content="index, follow">
