@@ -4,6 +4,15 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TBPWPDL3E8"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-TBPWPDL3E8');
+        </script>
+
         <title>画像切り抜きツール | ブラウザだけで完結 - 無料オンラインクロップ</title>
         @php
             $seoDescription = 'アップロード不要、ブラウザ内だけで完結する画像切り抜き(クロップ)ツール。16:9・1:1・9:16のプリセットや自由な範囲指定に対応し、JPG/PNGでダウンロードできます。';
@@ -14,10 +23,9 @@
         <meta name="description" content="{{ $seoDescription }}">
         <meta name="robots" content="index, follow">
         <link rel="canonical" href="{{ $seoUrl }}">
-        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
-        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+        <link rel="icon" href="{{ asset('imagecrop-favicon.ico') }}" sizes="any">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('imagecrop-favicon-32x32.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('imagecrop-apple-touch-icon.png') }}">
         <meta name="theme-color" content="#2563eb">
 
         <meta property="og:type" content="website">
