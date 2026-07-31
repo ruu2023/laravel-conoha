@@ -215,6 +215,7 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
+                font: inherit;
                 font-size: 12px;
                 font-weight: 600;
                 color: var(--ink-muted);
@@ -223,6 +224,17 @@
                 border-radius: 999px;
                 padding: 5px 12px;
                 margin-bottom: 12px;
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            .preset-chip:hover {
+                border-color: var(--accent);
+            }
+
+            .preset-chip:active {
+                transform: scale(0.97);
             }
 
             .preset-chip .dot {
@@ -428,20 +440,103 @@
                 margin-top: 18px;
             }
 
+            .extract-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                background: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                font: inherit;
+                color: inherit;
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            .extract-toggle .chevron {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+                color: var(--ink-muted);
+                transition: transform 0.2s ease;
+            }
+
+            .extract-toggle[aria-expanded="true"] .chevron {
+                transform: rotate(180deg);
+            }
+
             .section-label {
                 display: block;
-                font-size: 11px;
+                font-size: 14px;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 color: var(--accent);
-                margin-bottom: 14px;
+            }
+
+            .extract-toggle .section-label {
+                margin-bottom: 0;
+            }
+
+            .extract-panel {
+                margin-top: 14px;
             }
 
             .extract-controls {
                 display: flex;
                 gap: 10px;
                 margin-bottom: 14px;
+            }
+
+            .stepper {
+                display: flex;
+                align-items: stretch;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                background: var(--paper);
+                overflow: hidden;
+            }
+
+            .stepper:focus-within {
+                border-color: var(--accent);
+            }
+
+            .stepper-btn {
+                flex: none;
+                width: 40px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                background: var(--surface);
+                color: var(--ink);
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 1;
+                cursor: pointer;
+                touch-action: manipulation;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            .stepper-btn:first-child {
+                border-right: 1px solid var(--border);
+            }
+
+            .stepper-btn:last-child {
+                border-left: 1px solid var(--border);
+            }
+
+            .stepper-btn:hover {
+                color: var(--accent);
+            }
+
+            .stepper-btn:active {
+                background: var(--accent-soft);
             }
 
             .extract-field {
@@ -451,7 +546,7 @@
             .extract-field label {
                 display: block;
                 font-size: 11.5px;
-                color: var(--ink-muted);
+                color: var(--ink);
                 margin-bottom: 6px;
             }
 
@@ -462,20 +557,26 @@
             }
 
             .extract-field input {
+                flex: 1;
+                min-width: 0;
                 width: 100%;
-                padding: 10px 12px;
-                border-radius: var(--radius-sm);
-                border: 1px solid var(--border);
-                background: var(--paper);
+                padding: 10px 8px;
+                border: none;
+                background: transparent;
                 color: var(--ink);
                 font-family: var(--font-mono);
                 font-size: 15px;
                 font-weight: 600;
+                text-align: center;
                 outline: none;
+                appearance: textfield;
+                -moz-appearance: textfield;
             }
 
-            .extract-field input:focus {
-                border-color: var(--accent);
+            .extract-field input::-webkit-outer-spin-button,
+            .extract-field input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
             }
 
             .extract-result {
@@ -750,7 +851,7 @@
             </div>
 
             <div class="card">
-                <span class="preset-chip"><span class="dot"></span><span id="presetLabel">原稿用紙1枚 (400)</span></span>
+                <button type="button" class="preset-chip" id="presetChip" aria-label="文字数設定を開く"><span class="dot"></span><span id="presetLabel">X (旧Twitter) (140)</span></button>
 
                 <div class="editor">
                     <div class="hl-backdrop" id="hlBackdrop" aria-hidden="true"><div class="hl-inner" id="hlInner"></div></div>
@@ -761,7 +862,7 @@
                     <div class="bar-track">
                         <div class="bar-fill" id="barFill"></div>
                     </div>
-                    <div class="count-text" id="countText"><span class="current">0</span> / 400</div>
+                    <div class="count-text" id="countText"><span class="current">0</span> / 140</div>
                 </div>
 
                 <div class="alert" id="alertBox">
@@ -793,28 +894,43 @@
             </div>
 
             <div class="card extract">
-                <span class="section-label">範囲を抽出 ・ Extract range</span>
+                <button type="button" class="extract-toggle" id="extractToggle" aria-expanded="false" aria-controls="extractPanel">
+                    <span class="section-label">範囲を抽出 ・ Extract range</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
 
-                <div class="extract-controls">
-                    <div class="extract-field">
-                        <label for="rangeStart">開始位置 <span class="code">startIndex</span></label>
-                        <input type="number" id="rangeStart" min="0" value="0" inputmode="numeric">
+                <div class="extract-panel" id="extractPanel" hidden>
+                    <div class="extract-controls">
+                        <div class="extract-field">
+                            <label for="rangeStart">開始位置 <span class="code">startIndex</span></label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-target="rangeStart" data-step="-1" aria-label="開始位置を1減らす">−</button>
+                                <input type="number" id="rangeStart" min="0" value="0" inputmode="numeric">
+                                <button type="button" class="stepper-btn" data-target="rangeStart" data-step="1" aria-label="開始位置を1増やす">+</button>
+                            </div>
+                        </div>
+                        <div class="extract-field">
+                            <label for="rangeLength">文字数 <span class="code">length</span></label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-target="rangeLength" data-step="-1" aria-label="文字数を1減らす">−</button>
+                                <input type="number" id="rangeLength" min="0" value="0" inputmode="numeric">
+                                <button type="button" class="stepper-btn" data-target="rangeLength" data-step="1" aria-label="文字数を1増やす">+</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="extract-field">
-                        <label for="rangeLength">文字数 <span class="code">length</span></label>
-                        <input type="number" id="rangeLength" min="0" value="10" inputmode="numeric">
+
+                    <div class="extract-result" id="extractResult">
+                        <span class="quote-mark quote-open" aria-hidden="true">"</span>
+                        <span id="extractText"></span>
+                        <span class="quote-mark quote-close" aria-hidden="true">"</span>
                     </div>
-                </div>
 
-                <div class="extract-result" id="extractResult">
-                    <span class="quote-mark quote-open" aria-hidden="true">"</span>
-                    <span id="extractText"></span>
-                    <span class="quote-mark quote-close" aria-hidden="true">"</span>
-                </div>
-
-                <div class="extract-meta">
-                    <span id="extractMeta">0〜9文字目 ・ 10文字</span>
-                    <button type="button" class="mini-btn" id="extractCopyBtn">コピー</button>
+                    <div class="extract-meta">
+                        <span id="extractMeta">該当する文字がありません</span>
+                        <button type="button" class="mini-btn" id="extractCopyBtn">コピー</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -854,6 +970,7 @@
             var countText = document.getElementById('countText');
             var barFill = document.getElementById('barFill');
             var alertBox = document.getElementById('alertBox');
+            var presetChip = document.getElementById('presetChip');
             var presetLabelEl = document.getElementById('presetLabel');
             var saveStatus = document.getElementById('saveStatus');
             var toast = document.getElementById('toast');
@@ -868,6 +985,8 @@
             var clearBtn = document.getElementById('clearBtn');
 
             var hlInner = document.getElementById('hlInner');
+            var extractToggle = document.getElementById('extractToggle');
+            var extractPanel = document.getElementById('extractPanel');
             var rangeStart = document.getElementById('rangeStart');
             var rangeLength = document.getElementById('rangeLength');
             var extractText = document.getElementById('extractText');
@@ -876,8 +995,8 @@
             var extractCopyBtn = document.getElementById('extractCopyBtn');
 
             var state = {
-                limit: parseInt(localStorage.getItem(STORAGE_LIMIT), 10) || 400,
-                label: localStorage.getItem(STORAGE_LABEL) || '原稿用紙1枚 (400)',
+                limit: parseInt(localStorage.getItem(STORAGE_LIMIT), 10) || 140,
+                label: localStorage.getItem(STORAGE_LABEL) || 'X (旧Twitter) (140)',
             };
 
             var pendingLimit = state.limit;
@@ -1047,6 +1166,25 @@
 
             rangeStart.addEventListener('input', updateExtract);
             rangeLength.addEventListener('input', updateExtract);
+
+            extractToggle.addEventListener('click', function () {
+                var expanded = extractToggle.getAttribute('aria-expanded') === 'true';
+                extractToggle.setAttribute('aria-expanded', String(!expanded));
+                extractPanel.hidden = expanded;
+            });
+
+            document.querySelectorAll('.stepper-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var input = document.getElementById(btn.dataset.target);
+                    var min = parseInt(input.min, 10) || 0;
+                    var step = parseInt(btn.dataset.step, 10);
+                    var next = Math.max(min, (parseInt(input.value, 10) || 0) + step);
+                    input.value = next;
+                    updateExtract();
+                });
+            });
+
+            presetChip.addEventListener('click', openModal);
 
             extractCopyBtn.addEventListener('click', function () {
                 var text = extractText.textContent;
