@@ -24,6 +24,17 @@ use Illuminate\Routing\UrlGenerator;
  * `post.ruu-dev.com` visitor gets `post.ruu-dev.com` links, not
  * `laravel.ruu-dev.com` ones. Locally there's no Worker, so Host is
  * already correct (e.g. `post.localhost`) and this is a no-op.
+ *
+ * asset() needs the same host correction, but not the prefix-stripping:
+ * asset paths (e.g. /build/assets/app-*.js) never carry the /{app} prefix
+ * in the first place, only route()/action() output does. Without this,
+ * Vite's @vite() directive (which resolves asset URLs through this same
+ * bound "url" service) links every subdomain's built JS/CSS at
+ * laravel.ruu-dev.com instead of its own host — the browser then blocks
+ * loading it as cross-origin, and the page never mounts. root/apex never
+ * exposed this because it isn't behind the Worker (Host arrives as
+ * "ruu-dev.com" unmodified, so there was nothing to rewrite); techpulse/
+ * zundamon are the first Worker-routed apps to actually load JS this way.
  */
 class SubdomainAwareUrlGenerator extends UrlGenerator
 {
@@ -35,6 +46,14 @@ class SubdomainAwareUrlGenerator extends UrlGenerator
     public function action($action, $parameters = [], $absolute = true)
     {
         return $this->fixAppUrl(parent::action($action, $parameters, $absolute));
+    }
+
+    public function asset($path, $secure = null)
+    {
+        $url = parent::asset($path, $secure);
+        $subdomain = $this->getRequest()->appSubdomain();
+
+        return $subdomain ? $this->rewriteHost($url, $subdomain) : $url;
     }
 
     protected function fixAppUrl(string $url): string
