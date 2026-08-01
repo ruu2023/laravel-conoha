@@ -47,31 +47,47 @@ jobs:
     steps:
       - name: SSH で ConoHa WING に接続してデプロイコマンドを実行
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          RESTRICTED_APPS_ALLOWED_EMAILS: ${{ secrets.RESTRICTED_APPS_ALLOWED_EMAILS }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,RESTRICTED_APPS_ALLOWED_EMAILS
           script: |
             cd ~/laravel-conoha
 
             # 1. 最新コードの取得
             git pull origin main
 
-            # 2. PHP 8.4 のフルパスでグローバル Composer を実行
+            # 2. .env を GitHub Secrets の値で更新(techpulse/zundamonのGoogleログイン用)
+            #    .envはgit管理外でサーバー上に永続するので、git pullでは触れられない。
+            #    Secret未設定(空文字)の項目は既存の.envの値を壊さないよう素通りする。
+            for key in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET RESTRICTED_APPS_ALLOWED_EMAILS; do
+              value="${!key}"
+              if [ -n "$value" ]; then
+                grep -v "^${key}=" .env > .env.tmp && mv .env.tmp .env
+                echo "${key}=${value}" >> .env
+              fi
+            done
+
+            # 3. PHP 8.4 のフルパスでグローバル Composer を実行
             /opt/alt/php84/usr/bin/php ~/.local/bin/composer install --no-dev --optimize-autoloader
 
-            # 3. DB マイグレーション
+            # 4. DB マイグレーション
             /opt/alt/php84/usr/bin/php artisan migrate --force
 
-            # 4. キャッシュ再構築
+            # 5. キャッシュ再構築
             #    サブドメイン毎のルートは起動時に静的登録され、実際の振り分けは
             #    ミドルウェアがリクエスト毎にパスを書き換えて行うので route:cache で問題ない。
             /opt/alt/php84/usr/bin/php artisan config:cache
             /opt/alt/php84/usr/bin/php artisan route:cache
             /opt/alt/php84/usr/bin/php artisan view:cache
 
-            # 5. 公開ディレクトリのシンボリックリンクを同期
+            # 6. 公開ディレクトリのシンボリックリンクを同期
             #    public/ 直下に新しい静的ファイルが増えても自動でリンクを張る
             #    laravel.ruu-dev.com と ruu-dev.com(apex) の両方のdocrootに同じ
             #    public/ を持ち込む。どちらがnginxに選ばれても同じindex.phpが
