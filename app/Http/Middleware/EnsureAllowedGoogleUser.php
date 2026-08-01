@@ -14,11 +14,22 @@ use Symfony\Component\HttpFoundation\Response;
  * an email that isn't allow-listed, both just get a 403. No redirect to
  * Google from here: these subdomains don't have their own OAuth callback
  * route registered with Google, only the hub does.
+ *
+ * Skipped entirely in `local`: the OAuth callback can only be registered
+ * with Google for bare "localhost" (see GoogleAuthController/laravel.php),
+ * and its session can't be shared to *.localhost (browsers treat
+ * "localhost" as a single-label eTLD), so there's no way to reach an
+ * authenticated state on techpulse.localhost/zundamon.localhost at all —
+ * gating them locally would just make them permanently inaccessible.
  */
 class EnsureAllowedGoogleUser
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (app()->environment('local')) {
+            return $next($request);
+        }
+
         $user = Auth::user();
 
         abort_unless(
