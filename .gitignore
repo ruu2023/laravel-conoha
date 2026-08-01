@@ -14,7 +14,9 @@
 /.zed
 /auth.json
 /node_modules
+/scripts/node_modules
 /public/build
+/public/data/zundamon/audio/*.wav
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage

@@ -87,5 +87,8 @@ jobs:
                 fi
               done
               ln -sfn ~/laravel-conoha/public/build build
+              # public/data (zundamonアプリのニュース/音声データ) もbuildと同様
+              # ディレクトリなので、上のファイル限定ループでは拾えない。
+              ln -sfn ~/laravel-conoha/public/data data
             done
             shopt -u dotglob

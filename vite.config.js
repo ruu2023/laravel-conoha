@@ -36,6 +36,13 @@ export default defineConfig({
         },
         watch: {
             ignored: ['**/storage/framework/views/**'],
+            // Dockerのbind mount(osxfs/gRPC-FUSE)だと、特にファイルの新規追加
+            // イベントがコンテナ内のchokidarに伝わらないことがある。新しい
+            // Pages/*.tsxを追加してもimport.meta.globが古いままになり、
+            // InertiaのresolvePageComponentが空オブジェクトを受け取って
+            // ページが真っ白になる不具合の原因だったため、ポーリングに切り替える。
+            usePolling: true,
+            interval: 300,
         },
     },
 });

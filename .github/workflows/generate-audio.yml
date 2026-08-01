@@ -1,0 +1,82 @@
+name: Generate Zundamon Audio
+
+on:
+  schedule:
+    # 毎日 09:37 JST = 00:37 UTC (daily-news.yml の後)
+    - cron: "37 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate-audio:
+    runs-on: ubuntu-latest
+
+    services:
+      voicevox:
+        image: voicevox/voicevox_engine:cpu-latest
+        ports:
+          - 50021:50021
+        options: >-
+          --health-cmd "curl -f http://localhost:50021/version || exit 1"
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 12
+          --health-start-period 60s
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      # data.jsonはGitにコミットされないので、daily-news.ymlが直接サーバーへ
+      # 同期した本番の内容を読みに行く(daily-news.ymlの20分後に実行される想定)。
+      - name: Fetch today's data.json from the live site
+        run: |
+          mkdir -p public/data/zundamon
+          curl -fsSL "https://zundamon.ruu-dev.com/data/zundamon/data.json" -o public/data/zundamon/data.json
+          cat public/data/zundamon/data.json
+
+      - name: Wait for VOICEVOX to be ready
+        run: |
+          echo "Waiting for VOICEVOX engine..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:50021/version > /dev/null; then
+              echo "VOICEVOX is ready!"
+              break
+            fi
+            echo "Attempt $i/30..."
+            sleep 5
+          done
+
+      - name: Generate audio files
+        run: python scripts/generate-audio.py
+
+      # 前日分の音声を残さない(manifest.jsonが指す当日分のみ配信する設計のため)
+      - name: Clear old audio on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            mkdir -p ~/laravel-conoha/public/data/zundamon/audio
+            rm -f ~/laravel-conoha/public/data/zundamon/audio/*.wav
+
+      - name: Sync audio + manifest to ConoHa WING
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "public/data/zundamon/audio/*.wav,public/data/zundamon/manifest.json"
+          target: "~/laravel-conoha/public/data/zundamon"
+          strip_components: 3
+          overwrite: true
