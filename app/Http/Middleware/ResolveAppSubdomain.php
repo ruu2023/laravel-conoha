@@ -99,6 +99,14 @@ class ResolveAppSubdomain
             return in_array($matches[1], self::apps(), true) ? $matches[1] : null;
         }
 
+        // The apex domain isn't behind the Worker (the wildcard DNS only
+        // covers *.ruu-dev.com), so it never carries the header and its Host
+        // arrives unmodified as "ruu-dev.com" — unlike every other app here,
+        // which only ever sees Host rewritten to laravel.ruu-dev.com.
+        if ($request->getHost() === "ruu-dev.com") {
+            return in_array("root", self::apps(), true) ? "root" : null;
+        }
+
         return self::DEFAULT_APP;
     }
 

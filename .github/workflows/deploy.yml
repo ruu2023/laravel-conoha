@@ -6,7 +6,42 @@ on:
       - main
 
 jobs:
+  # ConoHa WINGにNode.jsが無いためVite/Inertiaのビルドはできない。
+  # Actionsランナー側でビルドし、成果物(public/build)だけをscpで送る。
+  build-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: npm ci && vite build
+        run: |
+          npm ci
+          npm run build
+      - name: 古いビルド成果物を削除(ハッシュ付きファイルの蓄積を防ぐ)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: rm -rf ~/laravel-conoha/public/build
+      - name: public/build を ConoHa WING へ転送
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "public/build/*"
+          target: "~/laravel-conoha/public/build"
+          strip_components: 2
+          overwrite: true
+
   deploy:
+    needs: build-assets
     runs-on: ubuntu-latest
 
     steps:
@@ -38,13 +73,19 @@ jobs:
 
             # 5. 公開ディレクトリのシンボリックリンクを同期
             #    public/ 直下に新しい静的ファイルが増えても自動でリンクを張る
-            cd ~/public_html/laravel.ruu-dev.com
+            #    laravel.ruu-dev.com と ruu-dev.com(apex) の両方のdocrootに同じ
+            #    public/ を持ち込む。どちらがnginxに選ばれても同じindex.phpが
+            #    起動し、あとはHostの違いをResolveAppSubdomainミドルウェアが
+            #    振り分ける(docs/subdomain-routing.md参照)。
             shopt -s dotglob
-            for f in ~/laravel-conoha/public/*; do
-              name=$(basename "$f")
-              if [ -f "$f" ]; then
-                ln -sfn "$f" "$name"
-              fi
+            for docroot in ~/public_html/laravel.ruu-dev.com ~/public_html/ruu-dev.com; do
+              cd "$docroot"
+              for f in ~/laravel-conoha/public/*; do
+                name=$(basename "$f")
+                if [ -f "$f" ]; then
+                  ln -sfn "$f" "$name"
+                fi
+              done
+              ln -sfn ~/laravel-conoha/public/build build
             done
             shopt -u dotglob
-            ln -sfn ~/laravel-conoha/public/build build
