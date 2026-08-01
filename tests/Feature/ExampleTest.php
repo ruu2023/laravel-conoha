@@ -17,10 +17,11 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_the_legacy_host_redirects_to_the_canonical_domain(): void
+    public function test_the_legacy_host_shows_the_shared_login_page(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect('https://memo.ruu-dev.com/');
+        $response->assertStatus(200);
+        $response->assertSee('Googleでログイン');
     }
 }

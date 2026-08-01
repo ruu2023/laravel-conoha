@@ -116,6 +116,10 @@ class ResolveAppSubdomain
 
         abort_if($subdomain === null, 404);
 
+        if (in_array($subdomain, config("restricted_apps.session_shared_apps", []), true)) {
+            $this->widenSessionCookieToRootDomain($request);
+        }
+
         $prefixed = Request::create(
             "/" . $subdomain . $request->getRequestUri(),
             $request->getMethod(),
@@ -129,5 +133,41 @@ class ResolveAppSubdomain
         $prefixed->attributes->set("app_subdomain", $subdomain);
 
         return $next($prefixed);
+    }
+
+    /**
+     * The login hub (routes/apps/laravel.php) and the apps gated behind it
+     * (techpulse, zundamon) share one Google-login session (see
+     * config/restricted_apps.php), so their session cookie needs a domain
+     * wide enough to cross all three hosts instead of the default per-host
+     * one. Runs before StartSession (that's part of the 'web' middleware
+     * group, layered inside this globally-appended one), so mutating
+     * config('session.domain') here still takes effect.
+     */
+    private function widenSessionCookieToRootDomain(Request $request): void
+    {
+        $host = $request->getHost();
+
+        if (str_starts_with($host, self::DEFAULT_APP . ".")) {
+            // Worker-rewritten Host in production, e.g. "laravel.ruu-dev.com".
+            config(["session.domain" => "." . substr($host, strlen(self::DEFAULT_APP) + 1)]);
+        } elseif (
+            app()->environment("local") &&
+            ($host === "localhost" || str_ends_with($host, ".localhost"))
+        ) {
+            // Bare "localhost" is the login hub locally (no subdomain to
+            // match DEFAULT_APP's "{app}." prefix against); "{app}.localhost"
+            // is techpulse/zundamon. Widened for parity with production, but
+            // note browsers treat "localhost" as a single-label eTLD and
+            // won't actually honor cross-subdomain sharing for it — Google's
+            // OAuth policy also only allows the insecure http callback on
+            // exactly "localhost"/"127.0.0.1", so there's no local hostname
+            // that satisfies both constraints at once. The shared-session
+            // flow can only be fully exercised on the real *.ruu-dev.com
+            // (https, not eTLD-restricted) — see PR/chat discussion. Locally,
+            // verify the two halves separately: login completes, and
+            // EnsureAllowedGoogleUser 403s without a session.
+            config(["session.domain" => ".localhost"]);
+        }
     }
 }
