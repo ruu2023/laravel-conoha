@@ -61,7 +61,14 @@ jobs:
             cd ~/laravel-conoha
 
             # 1. 最新コードの取得
-            git pull origin main
+            #    追跡ファイルにサーバー側だけの変更が乗っていると(原因不明、
+            #    2026-08-01にpublic/配下のfavicon類で発生)git pullがコンフリクトで
+            #    中断し、以降のcomposer/migrate/cacheが古いコードのまま実行され
+            #    続けてしまう。デプロイ対象は常にgit HEADと一致すべきなので、
+            #    追跡ファイルへのローカル差分は毎回破棄してから取得する
+            #    (.env・storage・public/buildなどgitignore対象は影響を受けない)。
+            git fetch origin main
+            git reset --hard origin/main
 
             # 2. .env を GitHub Secrets の値で更新(techpulse/zundamonのGoogleログイン用)
             #    .envはgit管理外でサーバー上に永続するので、git pullでは触れられない。
