@@ -93,30 +93,29 @@ jobs:
             /opt/alt/php84/usr/bin/php artisan migrate --force
 
             # 5. キャッシュ再構築
-            #    サブドメイン毎のルートは起動時に静的登録され、実際の振り分けは
-            #    ミドルウェアがリクエスト毎にパスを書き換えて行うので route:cache で問題ない。
+            #    各ミニアプリのルートは起動時に静的登録され、実際のURLも
+            #    Route::prefix()のprefixそのままなので route:cache で問題ない
+            #    (docs/subdomain-routing.md参照)。
             /opt/alt/php84/usr/bin/php artisan config:cache
             /opt/alt/php84/usr/bin/php artisan route:cache
             /opt/alt/php84/usr/bin/php artisan view:cache
 
             # 6. 公開ディレクトリのシンボリックリンクを同期
-            #    public/ 直下に新しい静的ファイルが増えても自動でリンクを張る
-            #    laravel.ruu-dev.com と ruu-dev.com(apex) の両方のdocrootに同じ
-            #    public/ を持ち込む。どちらがnginxに選ばれても同じindex.phpが
-            #    起動し、あとはHostの違いをResolveAppSubdomainミドルウェアが
-            #    振り分ける(docs/subdomain-routing.md参照)。
+            #    public/ 直下に新しい静的ファイルが増えても自動でリンクを張る。
+            #    パスベースのルーティングに移行し、正規URLは ruu-dev.com(apex)
+            #    一本になったため、旧 laravel.ruu-dev.com docrootへのリンク
+            #    張り直しは廃止した(旧サブドメインは意図的に未対応のまま
+            #    放置する方針、docs/subdomain-routing.md参照)。
             shopt -s dotglob
-            for docroot in ~/public_html/laravel.ruu-dev.com ~/public_html/ruu-dev.com; do
-              cd "$docroot"
-              for f in ~/laravel-conoha/public/*; do
-                name=$(basename "$f")
-                if [ -f "$f" ]; then
-                  ln -sfn "$f" "$name"
-                fi
-              done
-              ln -sfn ~/laravel-conoha/public/build build
-              # public/data (zundamonアプリのニュース/音声データ) もbuildと同様
-              # ディレクトリなので、上のファイル限定ループでは拾えない。
-              ln -sfn ~/laravel-conoha/public/data data
+            cd ~/public_html/ruu-dev.com
+            for f in ~/laravel-conoha/public/*; do
+              name=$(basename "$f")
+              if [ -f "$f" ]; then
+                ln -sfn "$f" "$name"
+              fi
             done
+            ln -sfn ~/laravel-conoha/public/build build
+            # public/data (zundamonアプリのニュース/音声データ) もbuildと同様
+            # ディレクトリなので、上のファイル限定ループでは拾えない。
+            ln -sfn ~/laravel-conoha/public/data data
             shopt -u dotglob

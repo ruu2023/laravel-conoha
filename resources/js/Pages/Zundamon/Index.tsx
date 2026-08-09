@@ -3,6 +3,7 @@ import { Head } from "@inertiajs/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useFavicon } from "@/lib/use-favicon";
 
 // GitHub Pages(ruu2023/100-days-of-code-2026)からこのリポジトリに移管。
 // データは .github/workflows/daily-news.yml + generate-audio.yml が
@@ -150,6 +151,8 @@ function NewsCard({ item, isPlaying, progress, currentTime, duration, onPlay, on
 }
 
 export default function Index() {
+    useFavicon("/zundamon-favicon.png");
+
     const [items, setItems] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

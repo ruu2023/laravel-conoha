@@ -3,23 +3,15 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        @php
-            // Inertiaのroot viewはアプリ間で共通なので、サブドメイン毎の既定値
-            // (タイトル/favicon)をここで出し分ける。各ページはInertiaの<Head>で
-            // さらに上書きできる(title inertia属性がある要素はInertiaが差し替える)。
-            // faviconはruu-dev(root)のアイコンをアプリ共通の既定値とし、専用の
-            // アイコンを用意したアプリだけここで上書きする。
-            $inertiaDefaults = [
-                'root' => ['title' => '100 Days of Code'],
-                'techpulse' => ['title' => 'AI Tech Pulse', 'favicon' => 'techpulse-favicon.png'],
-                'zundamon' => ['title' => 'ずんだもんNEWS', 'favicon' => 'zundamon-favicon.png'],
-            ];
-            $inertiaMeta = $inertiaDefaults[request()->appSubdomain()] ?? [];
-            $inertiaTitle = $inertiaMeta['title'] ?? 'ruu-dev.com';
-            $inertiaFavicon = $inertiaMeta['favicon'] ?? 'favicon.ico';
-        @endphp
-        <title inertia>{{ $inertiaTitle }}</title>
-        <link rel="icon" href="{{ asset($inertiaFavicon) }}" sizes="any">
+        {{-- root app's defaults. Title: Inertia's <Head title="..."> replaces
+             any <title> lacking its own data-inertia marker, so pages that
+             set one automatically override this. Favicon: Inertia only
+             dedupes <title> that way, not arbitrary tags (would just be
+             appended alongside this one, not replace it), so pages that want
+             a different favicon swap this element's href directly instead
+             (see resources/js/lib/use-favicon.ts). --}}
+        <title inertia>100 Days of Code</title>
+        <link rel="icon" id="app-favicon" href="{{ asset('favicon.ico') }}" sizes="any">
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead

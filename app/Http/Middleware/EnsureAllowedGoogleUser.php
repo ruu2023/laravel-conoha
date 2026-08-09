@@ -10,13 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Gates techpulse/zundamon behind an existing Google-login session (see
  * config('restricted_apps.allowed_emails')). Logging in only happens on the
- * shared hub (routes/apps/laravel.php) — no session here, or a session for
+ * shared hub (routes/apps/login.php) — no session here, or a session for
  * an email that isn't allow-listed, both just get a 403. No redirect to
- * Google from here: these subdomains don't have their own OAuth callback
- * route registered with Google, only the hub does.
+ * Google from here: these apps don't have their own OAuth callback route
+ * registered with Google, only the hub does.
  *
  * Skipped entirely in `local`: the OAuth callback can only be registered
- * with Google for bare "localhost" (see GoogleAuthController/laravel.php),
+ * with Google for bare "localhost" (see GoogleAuthController/login.php),
  * and its session can't be shared to *.localhost (browsers treat
  * "localhost" as a single-label eTLD), so there's no way to reach an
  * authenticated state on techpulse.localhost/zundamon.localhost at all —

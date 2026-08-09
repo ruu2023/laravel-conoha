@@ -32,7 +32,7 @@
         <div>
             <h1>限定公開ミニアプリ</h1>
             <p>許可されたGoogleアカウントのみ利用できます。</p>
-            <a class="login-button" href="{{ route('laravel.auth.google.redirect') }}">Googleでログイン</a>
+            <a class="login-button" href="{{ route('login.auth.google.redirect') }}">Googleでログイン</a>
         </div>
     </body>
 </html>

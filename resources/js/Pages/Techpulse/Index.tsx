@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { Head } from "@inertiajs/react";
 import { BrainCircuit, RefreshCw, Sparkles, Zap } from "lucide-react";
+import { useFavicon } from "@/lib/use-favicon";
 
 // ずんだもんNEWS(zundamon)と同じAI要約データを読む。
 // .github/workflows/daily-news.ymlがConoHa WINGへ直接同期している。
@@ -45,6 +46,8 @@ function SummaryContent({ text }: { text: string }) {
 }
 
 export default function Index() {
+    useFavicon("/techpulse-favicon.png");
+
     const [items, setItems] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);

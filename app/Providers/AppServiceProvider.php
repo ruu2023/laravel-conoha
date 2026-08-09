@@ -2,9 +2,6 @@
 
 namespace App\Providers;
 
-use App\Routing\SubdomainAwareUrlGenerator;
-use Illuminate\Http\Request;
-use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,23 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->extend("url", function (UrlGenerator $url, $app) {
-            $generator = new SubdomainAwareUrlGenerator(
-                $app["router"]->getRoutes(),
-                $url->getRequest(),
-                $app["config"]["app.asset_url"],
-            );
-
-            $generator->setSessionResolver(fn() => $app["session"] ?? null);
-            $generator->setKeyResolver(
-                fn() => [
-                    $app["config"]["app.key"],
-                    ...$app["config"]["app.previous_keys"] ?? [],
-                ],
-            );
-
-            return $generator;
-        });
+        //
     }
 
     /**
@@ -39,10 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Request::macro("appSubdomain", function () {
-            return $this->attributes->get("app_subdomain");
-        });
-
         // ConoHa WING puts a local nginx between Cloudflare and PHP-FPM, so
         // the direct peer Laravel sees is nginx's own IP, not one of the
         // trusted Cloudflare ranges in config/cloudflare.php — trustProxies'

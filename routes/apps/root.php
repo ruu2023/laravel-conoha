@@ -5,8 +5,8 @@ use Inertia\Inertia;
 
 // Apex domain (ruu-dev.com). Formerly a standalone Next.js static export
 // (resources/ruu-dev, removed) — ported to Inertia+React in this same
-// Laravel app. See ResolveAppSubdomain::resolve() for why this app is
-// matched differently from every other subdomain.
+// Laravel app. Unlike every other mini app, this one is registered with no
+// URI prefix (see routes/web.php), so it serves ruu-dev.com/ directly.
 
 Route::get('/', fn () => Inertia::render('Root/Welcome'));
 

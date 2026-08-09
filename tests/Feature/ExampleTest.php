@@ -12,16 +12,23 @@ class ExampleTest extends TestCase
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->withHeader('X-App-Subdomain', 'memo')->get('/');
+        $response = $this->get('/memo');
 
         $response->assertStatus(200);
     }
 
-    public function test_the_legacy_host_shows_the_shared_login_page(): void
+    public function test_the_login_hub_shows_the_shared_login_page(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/login');
 
         $response->assertStatus(200);
         $response->assertSee('Googleでログイン');
+    }
+
+    public function test_a_disabled_app_404s(): void
+    {
+        $response = $this->get('/post');
+
+        $response->assertStatus(404);
     }
 }

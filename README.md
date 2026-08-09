@@ -1,18 +1,17 @@
 # laravel-conoha
 
-`*.ruu-dev.com` 配下の複数のミニアプリ(`memo`、`dockerfiles`、`post` など)を、1つのLaravelアプリ・1つのConoHa WINGオリジンでサブドメインごとに振り分けて配信するプロジェクト。
+`ruu-dev.com` 配下の複数のミニアプリ(`memo`、`dockerfiles`、`post` など)を、1つのLaravelアプリ・1つのConoHa WINGオリジンでパスごとに振り分けて配信するプロジェクト(例: `ruu-dev.com/memo`)。
 
 ## アプリ構成
 
-- 各ミニアプリのルートは `routes/apps/{subdomain}.php` に置く(例: `routes/apps/post.php`)
-- どのサブドメインへのリクエストかは `App\Http\Middleware\ResolveAppSubdomain` が判定し、内部的にリクエストパスへ `/{subdomain}` prefixを付けてルーティングする(ブラウザ側のURLにこのprefixは出てこない)
-- ルートの一覧(ホワイトリスト)は手動管理ではなく、`routes/apps/*.php` の実ファイルから自動検出される(`ResolveAppSubdomain::apps()`)
+- 各ミニアプリのルートは `routes/apps/{name}.php` に置く(例: `routes/apps/post.php`)。このprefix(`/{name}`)がそのままそのアプリの公開URLになる(`Route::prefix($name)`で登録、途中に振り分け用のミドルウェアなどは挟まらない)
+- ルートの一覧(ホワイトリスト)は手動管理ではなく、`routes/apps/*.php` の実ファイルから`routes/web.php`が自動検出する
 
-設計の背景・過去にハマった点(なぜ起動時の条件分岐ではなくミドルウェアで振り分けるのか、`route()`が生成するURLの扱いなど)は [docs/subdomain-routing.md](docs/subdomain-routing.md) を参照。
+設計の背景・過去にハマった点(なぜ起動時の条件分岐ではなく毎回全ルート登録するのか、旧サブドメイン方式からの移行など)は [docs/subdomain-routing.md](docs/subdomain-routing.md) を参照。
 
 ### 新しいミニアプリの追加方法
 
-1. `routes/apps/{subdomain}.php` を作成し、通常どおりルートを書く
+1. `routes/apps/{name}.php` を作成し、通常どおりルートを書く
 2. コントローラー・ビュー等を追加する
 3. コミット・push する(これだけでよい。ホワイトリストの手動追記は不要)
 

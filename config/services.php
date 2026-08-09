@@ -39,8 +39,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         // Unused: GoogleAuthController always passes an explicit
-        // redirectUrl() (one per subdomain), but Socialite's driver
-        // factory requires this key to be present regardless.
+        // redirectUrl() (route('login.auth.google.callback')), but
+        // Socialite's driver factory requires this key to be present
+        // regardless.
         'redirect' => null,
     ],
 

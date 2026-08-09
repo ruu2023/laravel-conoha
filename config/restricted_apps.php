@@ -8,15 +8,12 @@ return [
     |
     | techpulse and zundamon are gray-area on copyright, so access is limited
     | to a hand-picked allow-list of Google accounts. Login itself only
-    | happens on the "laravel" app (routes/apps/laravel.php — the no-header /
-    | bare-host fallback, repurposed as the shared login hub so only one
-    | Google OAuth redirect URI needs registering instead of one per gated
-    | subdomain). Listed together here — not one config block per app —
-    | because all three intentionally share one session: see
-    | App\Http\Middleware\ResolveAppSubdomain, which reads this same list to
-    | widen the session cookie's domain only for these subdomains.
+    | happens on the "login" app (routes/apps/login.php), the shared login
+    | hub, so only one Google OAuth redirect URI needs registering instead
+    | of one per gated app. All apps share a single session cookie (same
+    | domain, path-based routing), so no separate session-sharing config is
+    | needed for login/techpulse/zundamon to see the same login.
     */
-    'session_shared_apps' => ['laravel', 'techpulse', 'zundamon'],
 
     /*
     | Comma-separated in .env, never committed here — this repo is public,

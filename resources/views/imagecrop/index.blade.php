@@ -16,9 +16,7 @@
         <title>画像切り抜きツール | ブラウザだけで完結 - 無料オンラインクロップ</title>
         @php
             $seoDescription = 'アップロード不要、ブラウザ内だけで完結する画像切り抜き(クロップ)ツール。16:9・1:1・9:16のプリセットや自由な範囲指定に対応し、JPG/PNGでダウンロードできます。';
-            // Host is always laravel.ruu-dev.com server-side (the Worker rewrites
-            // it), so url('/') can't reflect the real canonical domain — hardcode it.
-            $seoUrl = 'https://imagecrop.ruu-dev.com/';
+            $seoUrl = url('/imagecrop');
         @endphp
         <meta name="description" content="{{ $seoDescription }}">
         <meta name="robots" content="index, follow">
