@@ -8,8 +8,6 @@ use Inertia\Inertia;
 // Laravel app. Unlike every other mini app, this one is registered with no
 // URI prefix (see routes/web.php), so it serves ruu-dev.com/ directly.
 
-Route::get('/', fn () => Inertia::render('Root/Welcome'));
-
-Route::get('/dashboard', fn () => Inertia::render('Root/Dashboard', [
+Route::get('/', fn () => Inertia::render('Root/Welcome', [
     'posts' => json_decode(file_get_contents(resource_path('data/posts.json')), associative: true),
 ]));

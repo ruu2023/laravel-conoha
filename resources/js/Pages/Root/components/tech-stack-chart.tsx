@@ -8,7 +8,6 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // 型定義
 interface LanguageData {
@@ -16,6 +15,8 @@ interface LanguageData {
     count: number;
 }
 
+// LPの他セクションと見た目を揃えるため、shadcnのCardは使わず素のdivで囲む
+// (呼び出し元のWelcome.tsxが見出し・余白・カード枠を持つ)。
 export function TechStackChart() {
     const [data, setData] = useState<LanguageData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -54,55 +55,44 @@ export function TechStackChart() {
 
     if (loading) {
         return (
-            <Card className="w-full h-75 flex items-center justify-center">
-                Loading...
-            </Card>
+            <div className="flex h-75 w-full items-center justify-center text-sm text-neutral-400">
+                読み込み中...
+            </div>
         );
     }
 
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Languages in 100-days-of-code-2026</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="h-75 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={data}
-                            layout="vertical"
-                            margin={{ left: 20, right: 30 }}
-                        >
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                horizontal={false}
-                            />
-                            <XAxis type="number" hide />
-                            <YAxis
-                                dataKey="name"
-                                type="category"
-                                width={100}
-                                tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip
-                                cursor={{ fill: "transparent" }}
-                                contentStyle={{
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                }}
-                                // バイト数を見やすくするためにフォーマット（任意）
-                                // formatter={(value: number) => [`${value.toLocaleString()} bytes`, 'Size']}
-                            />
-                            <Bar
-                                dataKey="count"
-                                fill="hsl(var(--primary))"
-                                radius={[0, 4, 4, 0]}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="h-75 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data} layout="vertical" margin={{ left: 20, right: 30 }}>
+                    <defs>
+                        <linearGradient id="techStackBar" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#2563eb" />
+                            <stop offset="100%" stopColor="#7c3aed" />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="oklch(90% 0.005 260)" />
+                    <XAxis type="number" hide />
+                    <YAxis
+                        dataKey="name"
+                        type="category"
+                        width={100}
+                        tick={{ fontSize: 12, fill: "oklch(40% 0.02 260)" }}
+                        axisLine={false}
+                        tickLine={false}
+                    />
+                    <Tooltip
+                        cursor={{ fill: "oklch(96% 0.015 250)" }}
+                        contentStyle={{
+                            borderRadius: "12px",
+                            border: "1px solid oklch(90% 0.005 260)",
+                            boxShadow: "0 12px 24px -12px rgba(20,20,30,0.2)",
+                            fontSize: "13px",
+                        }}
+                    />
+                    <Bar dataKey="count" fill="url(#techStackBar)" radius={[0, 8, 8, 0]} />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
     );
 }

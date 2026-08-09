@@ -41,7 +41,7 @@ Full design rationale and history (including the prior subdomain-based scheme an
 
 ## Architecture: the `root` app (Inertia + React)
 
-`routes/apps/root.php` renders two Inertia pages (`Root/Welcome`, `Root/Dashboard`) instead of a Blade view. This is the only Inertia/React consumer in the project so far.
+`routes/apps/root.php` renders the `Root/Welcome` Inertia page (the LP) instead of a Blade view.
 
 - `resources/js/app.tsx` — Inertia bootstrap (`createInertiaApp` + `resolvePageComponent`, glob-resolving `./Pages/**/*.tsx`).
 - `resources/js/components/ui/*`, `resources/js/lib/utils.ts` — shared shadcn-style primitives (Button/Card/Badge + `cn()` helper), kept outside any per-app namespace since they're meant to be reused by any future Inertia mini app.

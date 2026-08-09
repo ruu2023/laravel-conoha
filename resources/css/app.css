@@ -96,3 +96,25 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Root/Welcome (LP) hero decoration — prefixed to avoid colliding with any
+   future page's own keyframes. */
+@keyframes lpFloatY {
+    0%,
+    100% {
+        transform: translateY(0) rotate(var(--r, 0deg));
+    }
+    50% {
+        transform: translateY(-10px) rotate(var(--r, 0deg));
+    }
+}
+@keyframes lpFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

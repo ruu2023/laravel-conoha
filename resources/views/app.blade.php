@@ -10,7 +10,7 @@
              appended alongside this one, not replace it), so pages that want
              a different favicon swap this element's href directly instead
              (see resources/js/lib/use-favicon.ts). --}}
-        <title inertia>100 Days of Code</title>
+        <title inertia>100日間のアプリ開発｜100 Days Challenge</title>
         <link rel="icon" id="app-favicon" href="{{ asset('favicon.ico') }}" sizes="any">
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
