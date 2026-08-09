@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { TechStackChart } from "./components/tech-stack-chart";
 
@@ -58,7 +57,11 @@ const HERO_POSITIONS = [
 
 function FeaturedAppCard({ app }: { app: FeaturedApp }) {
     return (
-        <Link
+        // imagecrop/memoはInertiaページではなく独立したBladeページなので、
+        // Inertiaの<Link>(SPA内遷移)ではなく普通の<a>で遷移する。<Link>で
+        // 非Inertiaレスポンスに飛ぶと、Inertiaがその生HTMLをモーダル表示して
+        // しまう(実際にページ遷移しない)。
+        <a
             href={app.href}
             className="group flex flex-col items-center gap-4 rounded-3xl p-5 text-center no-underline transition-all duration-200 hover:-translate-y-1"
             style={{ backgroundColor: app.tint }}
@@ -85,7 +88,7 @@ function FeaturedAppCard({ app }: { app: FeaturedApp }) {
             >
                 試してみる →
             </div>
-        </Link>
+        </a>
     );
 }
 

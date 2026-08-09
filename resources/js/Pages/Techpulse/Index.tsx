@@ -71,7 +71,9 @@ export default function Index() {
 
     return (
         <>
-            <Head title="AI Tech Pulse" />
+            <Head title="AI Tech Pulse">
+                <meta name="robots" content="noindex" />
+            </Head>
             <div className="bg-slate-50 text-slate-900 min-h-screen pb-12">
                 <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
                     <div className="max-w-3xl mx-auto px-6 py-4 flex justify-between items-center">

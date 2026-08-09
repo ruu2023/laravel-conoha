@@ -69,6 +69,8 @@ pushや通常デプロイを待たずに即座に切り替えたい場合のみ�
 
 `root`という名前は特別扱い(apex、prefixなし)。それ以外の名前は自動的に`ruu-dev.com/{name}`になる。
 
+新しいアプリが検索エンジンにインデックスさせたい公開アプリなら、[public/sitemap.xml](../public/sitemap.xml)にも`<url>`エントリを手動で追加すること(`routes/apps/*.php`のような自動検出はしていない — Googleにインデックスさせるべきでない未完成/ログイン制限アプリも同じ場所に置かれるため、公開判断は人が行う必要がある)。
+
 ## Inertiaページのタイトル/favicon
 
 `resources/views/app.blade.php`(全Inertiaアプリ共通のroot view)は`root`アプリの既定値だけを持つ。個別のアプリはそれぞれの`Pages/{App}/*.tsx`側でタイトル/faviconを自分で上書きする(例: [Techpulse/Index.tsx](../resources/js/Pages/Techpulse/Index.tsx))。以前はapp.blade.php側にアプリ名をキーにした配列を置いて出し分けていたが、新しいInertiaアプリを追加するたびにこの配列を編集する必要があり、しかも「アプリ単位」の既定値しか表現できなかった(同じアプリ内のページごとに変えたい場合に対応できない)。各ページが自分のmetaを持つ形にしたことで、app.blade.phpは触らずに済むようになった。

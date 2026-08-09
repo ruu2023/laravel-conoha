@@ -226,7 +226,9 @@ export default function Index() {
 
     return (
         <>
-            <Head title="ずんだもんNEWS" />
+            <Head title="ずんだもんNEWS">
+                <meta name="robots" content="noindex" />
+            </Head>
             <div className="min-h-screen bg-gray-50">
                 <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
                     <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
