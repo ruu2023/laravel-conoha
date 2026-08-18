@@ -20,7 +20,9 @@ type FeaturedApp = {
     accent: string;
     tint: string;
     mono: string;
-    image: string;
+    // プレビュー画像があるアプリのみ。無ければmonoの2文字バッジで代用するので、
+    // アプリを増やすたびにスクリーンショットを用意する必要はない。
+    image?: string;
 };
 
 // 実際に完成・公開済みのアプリのみ。dockerfilesはまだ「準備中」のスタブなので
@@ -45,11 +47,67 @@ const FEATURED_APPS: FeaturedApp[] = [
         mono: "MD",
         image: "/memo-preview.png",
     },
+    {
+        name: "テキスト統計アプリ",
+        desc: "文章を入力するだけで文字数・行数・読了時間をリアルタイム計算。",
+        href: "/textstats",
+        accent: "#7c3aed",
+        tint: "#f5f3ff",
+        mono: "TS",
+        image: "/textstats-preview.png",
+    },
+    {
+        name: "Quick Markdown",
+        desc: "Markdownをライブプレビューしながら書ける、自動保存メモ。",
+        href: "/quickmd",
+        accent: "#3b82f6",
+        tint: "#eff6ff",
+        mono: "QM",
+        image: "/quickmd-preview.png",
+    },
+    {
+        name: "MyBatis 30分マスター講義",
+        desc: "MyBatisの基礎を4ステップで学べる、進捗保存付きミニ講座。",
+        href: "/mybatistutor",
+        accent: "#4f46e5",
+        tint: "#eef2ff",
+        mono: "MB",
+        image: "/mybatistutor-preview.png",
+    },
+    {
+        name: "NEO DASH",
+        desc: "クリックだけで遊べる、重力を操るワンボタン回避アクション。",
+        href: "/gravitydash",
+        accent: "#ef4444",
+        tint: "#fef2f2",
+        mono: "GD",
+        image: "/gravitydash-preview.png",
+    },
+    {
+        name: "YT_LOG.exe",
+        desc: "YouTube動画を見ながら、タイムスタンプ付きでメモを記録。",
+        href: "/ytlog",
+        accent: "#0ea5e9",
+        tint: "#f0f9ff",
+        mono: "YT",
+        image: "/ytlog-preview.png",
+    },
+    {
+        name: "Debugging Tavern",
+        desc: "セキュリティ・Git・パフォーマンスのクイズに挑むRPG風ミニゲーム。",
+        href: "/debugtavern",
+        accent: "#9333ea",
+        tint: "#faf5ff",
+        mono: "DT",
+        image: "/debugtavern-preview.png",
+    },
 ];
 
 // ヒーローのスマホ重ね表示は装飾目的なのでリンクなし(クリック可能な導線は
-// 下のFeatured Appsに任せる)。FEATURED_APPSと同じ2つの実アプリだけを使い、
-// techpulse/zundamon(Googleログイン制限あり)は載せない。
+// 下のFeatured Appsに任せる)。HERO_POSITIONSの枠数(2つ)だけ使うので、
+// 最初の2つの実アプリに固定する。
+const HERO_APPS = FEATURED_APPS.slice(0, 2);
+
 const HERO_POSITIONS = [
     { left: "40px", top: "30px", rot: "-6deg", dur: "5s", delay: "0s", z: 2 },
     { left: "190px", top: "0px", rot: "5deg", dur: "6s", delay: "0.4s", z: 3 },
@@ -70,11 +128,20 @@ function FeaturedAppCard({ app }: { app: FeaturedApp }) {
                 className="w-36 -rotate-2 overflow-hidden rounded-[20px] border-4 border-white bg-white shadow-lg transition-transform duration-200 group-hover:rotate-0"
                 style={{ boxShadow: `0 16px 30px -14px ${app.accent}66` }}
             >
-                <img
-                    src={app.image}
-                    alt={`${app.name}のスクリーンショット`}
-                    className="aspect-[3/5] w-full object-cover object-top"
-                />
+                {app.image ? (
+                    <img
+                        src={app.image}
+                        alt={`${app.name}のスクリーンショット`}
+                        className="aspect-[3/5] w-full object-cover object-top"
+                    />
+                ) : (
+                    <div
+                        className="flex aspect-[3/5] w-full items-center justify-center text-3xl font-extrabold text-white"
+                        style={{ background: `linear-gradient(160deg, ${app.accent}, ${app.accent}cc)` }}
+                    >
+                        {app.mono}
+                    </div>
+                )}
             </div>
             <div>
                 <div className="mb-1 text-base font-bold" style={{ color: app.accent }}>
@@ -208,7 +275,7 @@ export default function Welcome({ posts }: { posts: Post[] }) {
                 </div>
 
                 <div className="relative hidden h-[460px] md:block">
-                    {FEATURED_APPS.map((app, i) => (
+                    {HERO_APPS.map((app, i) => (
                         <div
                             key={app.href}
                             className="absolute w-[190px] overflow-hidden rounded-[26px] border-[6px] border-white bg-white shadow-[0_20px_40px_-16px_rgba(20,20,30,0.3)]"
