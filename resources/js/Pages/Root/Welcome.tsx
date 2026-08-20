@@ -101,6 +101,15 @@ const FEATURED_APPS: FeaturedApp[] = [
         mono: "DT",
         image: "/debugtavern-preview.png",
     },
+    {
+        name: "Lyric Studio",
+        desc: "歌詞を貼り付けて保存、iTunes検索でジャケット画像や曲情報を紐付け。",
+        href: "/lyricstudio",
+        accent: "#dc2626",
+        tint: "#fef2f2",
+        mono: "LS",
+        image: "/lyricstudio-preview.png",
+    },
 ];
 
 // ヒーローのスマホ重ね表示は装飾目的なのでリンクなし(クリック可能な導線は
